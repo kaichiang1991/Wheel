@@ -3,7 +3,6 @@ import {Container, Graphics} from 'pixi.js'
 
 export default PixiComponent('Wheel', {
     create: props =>{
-        // console.log('create', props)
         return new Graphics()
     },
 

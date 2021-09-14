@@ -6,8 +6,8 @@ import Square from './PixiComponent/Square'
 import Wheel from './PixiComponent/Wheel'
 import gsap from 'gsap'
 import PixiPlugin from 'gsap/PixiPlugin'
+import Button from './PixiComponent/Button'
 
-console.log('gsap', gsap)
 export default class App extends Component {
 
 	state = {
@@ -34,6 +34,7 @@ export default class App extends Component {
 	}
 
 	clickEvent(){
+		console.log('clickEvent')
 		const wheel = this.wheelRef.current, config = {
 			rotation: 0
 		}
@@ -48,10 +49,11 @@ export default class App extends Component {
 		return (
 			<div className="App">
     			<div className="game" ref={this.gameRef}>
-					<Stage width={720} height={1280} options={{autoDensity: false}} onClick={this.clickEvent}>
+					<Stage width={720} height={1280} options={{autoDensity: false}}>
 						<Square width={200} pos={[0, 0]}/>
 						<Square width={200} pos={[720-200, 1280-200]}/>
 						<Wheel ref={this.wheelRef}/>
+						<Button clickEvent={this.clickEvent}/>
 					</Stage>
 				</div>
 			</div>
