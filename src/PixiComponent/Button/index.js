@@ -37,7 +37,7 @@ export default PixiComponent('Button', {
         })))
         _text.anchor.set(.5)
         _text.position.set(width / 2, height / 2)
-        // this.clickEvent = newP.clickEvent
+        this.clickEvent = clickEvent
         
         // 紀錄原始座標
         this.origPos = new Point(x, y)
