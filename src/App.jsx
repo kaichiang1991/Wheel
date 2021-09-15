@@ -28,12 +28,15 @@ export default class App extends Component {
 	}
 
 	componentDidMount(){
-		const div = this.gameRef.current, {clientWidth, clientHeight} = div.parentElement
-
-		const ratio = clientHeight / 1280
-		div.style.width = (720 * ratio) + 'px'
-		div.style.height = (1280 * ratio) + 'px'
-		// this.renderer.resize(720, 1280)
+		// const resizeFn = ()=>{			
+		// 	const div = this.gameRef.current, {clientWidth, clientHeight} = div.parentElement
+		// 	const ratio = clientHeight / 1280
+		// 	console.log('clientHeight', clientHeight, 'ratio', ratio)
+		// 	div.style.width = (720 * ratio) + 'px'
+		// 	div.style.height = (1280 * ratio) + 'px'
+		// }
+		// window.addEventListener('resize', resizeFn)
+		// // resizeFn()
 	}
 
 	clickEvent(){
@@ -50,17 +53,11 @@ export default class App extends Component {
 		const {width, height} = this.state
 		return (
 			<div className="App">
-    			<div className="game" ref={this.gameRef}>
+    			<div className="game-container" ref={this.gameRef}>
 					<Switch>
 						<Route exact path="/" component={Home}/>
 						<Route path="/game" component={Game}/>
 					</Switch>
-					{/* <Stage width={720} height={1280} options={{autoDensity: false}}>
-						<Square width={200} pos={[0, 0]}/>
-						<Square width={200} pos={[720-200, 1280-200]}/>
-						<Wheel ref={this.wheelRef}/>
-						<Button clickEvent={this.clickEvent}/>
-					</Stage> */}
 				</div>
 			</div>
 		)

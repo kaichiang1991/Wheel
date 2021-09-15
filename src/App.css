@@ -1,24 +1,30 @@
 *{
   position: relative;
   box-sizing: border-box;
+  padding: 0;
+  margin: 0;
 }
 
 #root{
   height: 100vh;
+  background-color: blanchedalmond;
+  border: 1px red solid;
 }
 
 .App {
-  background-color: #6e6e6e;
   text-align: center;
   width: 100%;
   height: 100%;
+  border: 1px blue solid;
+
 }
 
-.game{
+.game-container{
   position: absolute;
-  top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translateX(-50%);
+
+  max-width: 100%;
 }
 
 canvas{
