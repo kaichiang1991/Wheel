@@ -1,0 +1,19 @@
+.list{
+    background-color: white;
+    height: 30vh;
+    width: 80%;
+    overflow: auto;
+    border: black solid 2px;
+
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 10% 0;
+}
+
+input[type="button"]{
+    box-shadow: black 2px 2px 2px;
+}
+
+.start-btn{
+    font-size: 32px;
+}

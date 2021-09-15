@@ -7,6 +7,9 @@ import Wheel from './PixiComponent/Wheel'
 import gsap from 'gsap'
 import PixiPlugin from 'gsap/PixiPlugin'
 import Button from './PixiComponent/Button'
+import { Route, Router, Switch } from 'react-router'
+import Home from './pages/Home'
+import Game from './pages/Game'
 
 export default class App extends Component {
 
@@ -34,7 +37,6 @@ export default class App extends Component {
 	}
 
 	clickEvent(){
-		console.log('clickEvent')
 		const wheel = this.wheelRef.current, config = {
 			rotation: 0
 		}
@@ -49,7 +51,10 @@ export default class App extends Component {
 		return (
 			<div className="App">
     			<div className="game" ref={this.gameRef}>
-					
+					<Switch>
+						<Route exact path="/" component={Home}/>
+						<Route path="/game" component={Game}/>
+					</Switch>
 					{/* <Stage width={720} height={1280} options={{autoDensity: false}}>
 						<Square width={200} pos={[0, 0]}/>
 						<Square width={200} pos={[720-200, 1280-200]}/>

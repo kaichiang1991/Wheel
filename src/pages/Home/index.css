@@ -1,0 +1,22 @@
+.home{
+    background-color: blanchedalmond;
+    height: 100%;
+}
+
+.home span p{
+    display: inline-block;
+    margin: 4px;
+}
+
+.home span input{
+    margin: 4px 4px;
+}
+
+.start-btn{
+    color: rgb(59, 59, 59);
+    background-color: whitesmoke;
+    text-decoration: none;
+    border: black solid 2px;
+    box-shadow: black 2px 2px 5px;
+    padding: 2px 6px;
+}
