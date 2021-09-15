@@ -1,12 +1,8 @@
 import React, { Component } from 'react'
 import './App.css'
 import * as PIXI from 'pixi.js'
-import { AppConsumer, Stage, withPixiApp } from '@inlet/react-pixi'
-import Square from './PixiComponent/Square'
-import Wheel from './PixiComponent/Wheel'
 import gsap from 'gsap'
 import PixiPlugin from 'gsap/PixiPlugin'
-import Button from './PixiComponent/Button'
 import { Route, Router, Switch } from 'react-router'
 import Home from './pages/Home'
 import Game from './pages/Game'
@@ -25,18 +21,6 @@ export default class App extends Component {
 
 		gsap.registerPlugin(PixiPlugin)
 		this.wheelRef = React.createRef()
-	}
-
-	componentDidMount(){
-		// const resizeFn = ()=>{			
-		// 	const div = this.gameRef.current, {clientWidth, clientHeight} = div.parentElement
-		// 	const ratio = clientHeight / 1280
-		// 	console.log('clientHeight', clientHeight, 'ratio', ratio)
-		// 	div.style.width = (720 * ratio) + 'px'
-		// 	div.style.height = (1280 * ratio) + 'px'
-		// }
-		// window.addEventListener('resize', resizeFn)
-		// // resizeFn()
 	}
 
 	clickEvent(){
