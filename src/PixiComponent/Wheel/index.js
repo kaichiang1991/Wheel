@@ -30,7 +30,7 @@ export default PixiComponent('Wheel', {
         const totalCount = itemArr.reduce((pre, curr) => pre + (+(newP[curr].count)), 0)
         const itemCount = itemArr.length
         const radius = 200, colorArr = [0x97CBFF, 0xC2FF68, 0xFF5809, 0xFFD306]
-        instance.clear()
+        instance.clear().lineStyle(1, 0x000000)
         
         let currentDeg = 0, angles = []
         for(let i = 0; i < itemCount; i++){
@@ -38,7 +38,7 @@ export default PixiComponent('Wheel', {
             instance
             .lineTo(x, y)
             .beginFill(colorArr[i % colorArr.length])
-            .arc(0, 0, radius, deg2Rad(currentDeg), deg2Rad(currentDeg = currentDeg + (360 / totalCount * +newP[i].count)))
+            .arc(0, 0, radius, deg2Rad(currentDeg), deg2Rad(currentDeg = currentDeg + (360 / totalCount * +newP[i].count)), false)
 
             angles.push(currentDeg)
         }

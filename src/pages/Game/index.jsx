@@ -31,7 +31,6 @@ export default class Game extends Component {
         .to(arrow, {duration: .2, ease: Power1.easeOut, angle: '-=15'})
         .to(arrow, {duration: .45, ease: Elastic.easeOut.config(1.75, .5), angle: '+=15'})
         this.arrowTween.pause()
-        .eventCallback('onStart', ()=> console.log('%cstart', 'color:red'))
 
         arrow.on(boundEvent, ctx => {
             this.arrowTween.isActive() && this.arrowTween.kill()
@@ -40,6 +39,7 @@ export default class Game extends Component {
         })
     }
 
+    /** 點擊事件 */
     clickEvent = ()=>{
         const wheel = this.wheelRef.current, arrow = this.arrowRef.current, button = this.buttonRef.current
         button.interactive = false
@@ -67,11 +67,12 @@ export default class Game extends Component {
         .eventCallback('onComplete', this.playResult)
     }
 
+    /** 播放輪盤結果 */
     playResult = ()=>{
         const wheel = this.wheelRef.current, arrow = this.arrowRef.current, button = this.buttonRef.current
 
         let remainIndex = 0, remainAngle = 0, flagArr = this.angleArr.map(_ => false), baseAngle = wheel.angle % 360, index = this.angleArr.findIndex(angle => angle >= baseAngle)
-        const result = 360 * Math.random(), config = {degree: 0}, bound = 10, target = result <= baseAngle? (result + 360): result
+        const result = this.getResultAngle(this.getResult()), config = {degree: 0}, bound = 10, target = result <= baseAngle? (result + 360): result
 
         gsap.to(config, {ease: 'none', duration: target / 360 * wheelConfig.eachDuration, degree: target - baseAngle})
         .eventCallback('onUpdate', ()=>{
@@ -92,6 +93,31 @@ export default class Game extends Component {
             button.interactive = true
         })
     }
+
+    /** 取得結果 */
+    getResult = ()=>{
+        const {itemArr} = this.props.location.state, valueArr = Object.values(itemArr)
+        const totalCount = valueArr.reduce((pre, curr) => pre + Number(curr.count), 0)
+
+        const index = gsap.utils.random(0, totalCount - 1, 1)
+        , key = itemArr.findIndex((_, idx) => index < valueArr.slice(0, idx+1).reduce((pre, curr) => pre + Number(curr.count), 0))
+
+        // ToDo 刪掉結果中的內容
+        return itemArr[key].item
+    }
+
+    /** 取得結果的角度 */
+    getResultAngle = (itemName)=>{
+        const {itemArr} = this.props.location.state
+        const totalCount = Object.values(itemArr).reduce((pre, curr) => pre + Number(curr.count), 0)
+
+        const reverse = Object.values(itemArr).reverse()
+            , reverseIndex = reverse.findIndex(obj => obj.item === itemName)
+            , preCount = reverse.slice(0, reverseIndex).reduce((pre, curr) => pre + Number(curr.count), 0)
+
+        const bottom = preCount / totalCount * 360, top = (preCount + Number(itemArr.find(obj => obj.item === itemName).count)) / totalCount * 360
+        return gsap.utils.random(bottom, top, 1) 
+    }
     
     // 紀錄滾輪邊界的角度
     setAngle = (...arr)=>{
@@ -100,7 +126,6 @@ export default class Game extends Component {
 
     render() {
         const {itemArr} = this.props.location.state
-
         return (
             <Stage width={720} height={1280} options={{
                 autoDensity: false, transparent: true
