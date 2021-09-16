@@ -8,10 +8,12 @@ import { nanoid } from 'nanoid'
 import Wheel from '../../PixiComponent/Wheel'
 import Arrow from '../../PixiComponent/Arrow'
 import Button from '../../PixiComponent/Button'
-import { Power1, Power4 } from 'gsap/src/all'
-import { Bounce, Elastic } from 'gsap/all'
+import { Power1, Power4, Bounce, Elastic } from 'gsap/all'
 
 const boundEvent = 'boundEvent'     // 碰到邊界的事件
+const wheelConfig = {
+    eachDuration: 1
+}
 
 export default class Game extends Component {
 
@@ -19,6 +21,7 @@ export default class Game extends Component {
         super()
         this.wheelRef = React.createRef()
         this.arrowRef = React.createRef()
+        this.buttonRef = React.createRef()
     }
 
     componentDidMount(){
@@ -26,8 +29,9 @@ export default class Game extends Component {
         // 箭頭抖動
         this.arrowTween = gsap.timeline()
         .to(arrow, {duration: .2, ease: Power1.easeOut, angle: '-=15'})
-        .to(arrow, {duration: .45, ease: Elastic.easeOut.config(1.75, .3), angle: '+=15'})
+        .to(arrow, {duration: .45, ease: Elastic.easeOut.config(1.75, .5), angle: '+=15'})
         this.arrowTween.pause()
+        .eventCallback('onStart', ()=> console.log('%cstart', 'color:red'))
 
         arrow.on(boundEvent, ctx => {
             this.arrowTween.isActive() && this.arrowTween.kill()
@@ -37,15 +41,15 @@ export default class Game extends Component {
     }
 
     clickEvent = ()=>{
-        const wheel = this.wheelRef.current, arrow = this.arrowRef.current
+        const wheel = this.wheelRef.current, arrow = this.arrowRef.current, button = this.buttonRef.current
+        button.interactive = false
+
         const config = {degree: 0}, bound = 10, spinRound = 2
-        let index = 0, remainIndex = 0, remainAngle = 0, flagArr = this.angleArr.map(_ => false), baseAngle = 0
+        let remainIndex = 0, remainAngle = 0, flagArr = this.angleArr.map(_ => false), baseAngle = wheel.angle % 360, index = this.angleArr.findIndex(angle => angle >= baseAngle)
 
         gsap.timeline()
         .to(config, {ease: Power1.easeOut, degree: -10})
-        .to(config, {ease: 'none', duration: 1 * spinRound, degree: 360 * spinRound, onRepeat: ()=>{
-            baseAngle += 360
-        }})
+        .to(config, {ease: 'none', duration: wheelConfig.eachDuration * spinRound, degree: 360 * spinRound})
         .eventCallback('onUpdate', ()=>{
             wheel.angle = config.degree + baseAngle
             remainIndex = index % this.angleArr.length 
@@ -59,6 +63,33 @@ export default class Game extends Component {
                     }
                 })
             }
+        })
+        .eventCallback('onComplete', this.playResult)
+    }
+
+    playResult = ()=>{
+        const wheel = this.wheelRef.current, arrow = this.arrowRef.current, button = this.buttonRef.current
+
+        let remainIndex = 0, remainAngle = 0, flagArr = this.angleArr.map(_ => false), baseAngle = wheel.angle % 360, index = this.angleArr.findIndex(angle => angle >= baseAngle)
+        const result = 360 * Math.random(), config = {degree: 0}, bound = 10, target = result <= baseAngle? (result + 360): result
+
+        gsap.to(config, {ease: 'none', duration: target / 360 * wheelConfig.eachDuration, degree: target - baseAngle})
+        .eventCallback('onUpdate', ()=>{
+            wheel.angle = config.degree + baseAngle
+            remainIndex = index % this.angleArr.length 
+            remainAngle = wheel.angle % 360
+
+            if(!flagArr[remainIndex] && (remainAngle > this.angleArr[remainIndex]) && (remainAngle - this.angleArr[remainIndex]) < bound){
+                flagArr[index] = true
+                arrow.emit(boundEvent, ()=> {
+                    if(++index % flagArr.length == 0){
+                        flagArr = flagArr.map(_ => false)
+                    }
+                })
+            }
+        })
+        .eventCallback('onComplete', ()=>{
+            button.interactive = true
         })
     }
     
@@ -86,7 +117,7 @@ export default class Game extends Component {
                     <Wheel {...itemArr} ref={this.wheelRef} setAngle={this.setAngle}/>
                     <Arrow ref={this.arrowRef}/>
                 </Container>
-                <Button x={360} y={800} width={200} height={100} text="開始!" clickEvent={this.clickEvent}/>
+                <Button ref={this.buttonRef} x={360} y={800} width={200} height={100} text="開始!" clickEvent={this.clickEvent}/>
             </Stage>
         )
     }
