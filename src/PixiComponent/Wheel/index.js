@@ -27,10 +27,6 @@ export default PixiComponent('Wheel', {
         itemArr.splice(itemArr.indexOf('setAngle'), 1)
 
         // 計算總共幾份
-        // console.log('wheel', newP)
-        // const itemArr = Object.keys(newP)
-
-        // console.log('itemArr', itemArr)
         const totalCount = itemArr.reduce((pre, curr) => pre + (+(newP[curr].count)), 0)
         const itemCount = itemArr.length
         const radius = 200, colorArr = [0x97CBFF, 0xC2FF68, 0xFF5809, 0xFFD306]
@@ -48,6 +44,7 @@ export default PixiComponent('Wheel', {
         }
         instance.endFill()
 
-        setAngle(...angles)
+        let repeatAngles = angles.slice().map(angle => angle % 360).sort((a,b) => a - b)
+        setAngle(...repeatAngles)
     }
 })

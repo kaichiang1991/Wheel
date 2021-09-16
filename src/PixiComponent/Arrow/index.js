@@ -9,9 +9,9 @@ export default PixiComponent('Arrow', {
         instance
         .clear()
         .lineStyle(5, 0)
-        .moveTo(0, -20).lineTo(0, 20)
+        .moveTo(0, -15).lineTo(0, 15)
         .lineTo(-40, 0)
-        .lineTo(0, -20)
+        .lineTo(0, -15)
         .endFill()
 
         instance.position.set(615, 360)

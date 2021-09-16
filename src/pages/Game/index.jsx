@@ -8,7 +8,10 @@ import { nanoid } from 'nanoid'
 import Wheel from '../../PixiComponent/Wheel'
 import Arrow from '../../PixiComponent/Arrow'
 import Button from '../../PixiComponent/Button'
-import { Power1 } from 'gsap/src/all'
+import { Power1, Power4 } from 'gsap/src/all'
+import { Bounce, Elastic } from 'gsap/all'
+
+const boundEvent = 'boundEvent'     // 碰到邊界的事件
 
 export default class Game extends Component {
 
@@ -18,28 +21,43 @@ export default class Game extends Component {
         this.arrowRef = React.createRef()
     }
 
-    clickEvent = ()=>{
-        const {current: wheel} = this.wheelRef, {current: arrow} = this.arrowRef
+    componentDidMount(){
+        const arrow = this.arrowRef.current
+        // 箭頭抖動
+        this.arrowTween = gsap.timeline()
+        .to(arrow, {duration: .2, ease: Power1.easeOut, angle: '-=15'})
+        .to(arrow, {duration: .45, ease: Elastic.easeOut.config(1.75, .3), angle: '+=15'})
+        this.arrowTween.pause()
 
-        console.log(this.angleArr)
-        
-        const config = {degree: 0}, flagArr = this.angleArr.map(_ => false), bound = 1
-        let index = 0
+        arrow.on(boundEvent, ctx => {
+            this.arrowTween.isActive() && this.arrowTween.kill()
+            this.arrowTween.totalProgress(0).play()
+            ctx()
+        })
+    }
+
+    clickEvent = ()=>{
+        const wheel = this.wheelRef.current, arrow = this.arrowRef.current
+        const config = {degree: 0}, bound = 10, spinRound = 2
+        let index = 0, remainIndex = 0, remainAngle = 0, flagArr = this.angleArr.map(_ => false), baseAngle = 0
+
         gsap.timeline()
-        .to(config, {ease: Power1.easeOut, degree: 0})  // ToDo 之後要拉
-        .to(config, {ease: 'none', duration: 1, repeat: -1, degree: 360, onRepeat: ()=>{
-            flagArr.map((_, index) => flagArr[index] = false)
-            console.log('repeat', flagArr)
+        .to(config, {ease: Power1.easeOut, degree: -10})
+        .to(config, {ease: 'none', duration: 1 * spinRound, degree: 360 * spinRound, onRepeat: ()=>{
+            baseAngle += 360
         }})
         .eventCallback('onUpdate', ()=>{
-            wheel.angle = config.degree
+            wheel.angle = config.degree + baseAngle
+            remainIndex = index % this.angleArr.length 
+            remainAngle = wheel.angle % 360
 
-            if(!flagArr[index] && (wheel.angle - this.angleArr[index]) < bound){
+            if(!flagArr[remainIndex] && (remainAngle > this.angleArr[remainIndex]) && (remainAngle - this.angleArr[remainIndex]) < bound){
                 flagArr[index] = true
-                console.log('跳', wheel.angle)
-                gsap.to(arrow, {duration: .05, angle: '-=10', yoyo: true, repeat: 1})
-            }else if(wheel.angle > this.angleArr[index] + bound){
-                index = ++index % flagArr.length
+                arrow.emit(boundEvent, ()=> {
+                    if(++index % flagArr.length == 0){
+                        flagArr = flagArr.map(_ => false)
+                    }
+                })
             }
         })
     }
