@@ -28,21 +28,24 @@ export default class Game extends Component {
         const {itemArr} = this.props.location.state
 
         // 把 route 帶來的 props 送入 state
-        this.setState({itemArr: itemArr.map(item => ({...item, origCount: +item.count, count: +item.count}))}
+        this.setState({
+            itemArr: itemArr.map(item => ({...item, origCount: +item.count, count: +item.count})),
+            currentIndex: 0
+        }
         , ()=>{
             // 畫面更新後，才有 arrowRef，所以在這裡設定
             // -------------------------------------------
-            const arrow = this.arrowRef.current
+            const wheel = this.wheelRef.current, arrow = this.arrowRef.current
             // 箭頭抖動
             this.arrowTween = gsap.timeline()
             .to(arrow, {duration: .2, ease: Power1.easeOut, angle: '-=15'})
             .to(arrow, {duration: .45, ease: Elastic.easeOut.config(1.75, .5), angle: '+=15'})
             this.arrowTween.pause()
     
-            arrow.on(boundEvent, ctx => {
+            wheel.on(boundEvent, ctx => {
+                this.setState({currentIndex: ctx})
                 this.arrowTween.isActive() && this.arrowTween.kill()
                 this.arrowTween.totalProgress(0).play()
-                ctx()
             })
         })
     }
@@ -53,7 +56,7 @@ export default class Game extends Component {
         button.interactive = false
 
         const config = {degree: 0}, bound = 10, spinRound = 2
-        let remainIndex = 0, remainAngle = 0, flagArr = this.angleArr.map(_ => false), baseAngle = wheel.angle % 360, index = this.angleArr.findIndex(angle => angle >= baseAngle)
+        let remainIndex = 0, remainAngle = 0, baseAngle = wheel.angle % 360, index = this.angleArr.findIndex(angle => angle >= baseAngle)
 
         gsap.timeline()
         .to(config, {ease: Power1.easeOut, degree: -10})
@@ -62,40 +65,24 @@ export default class Game extends Component {
             wheel.angle = config.degree + baseAngle
             remainIndex = index % this.angleArr.length 
             remainAngle = wheel.angle % 360
-
-            if(!flagArr[remainIndex] && (remainAngle > this.angleArr[remainIndex]) && (remainAngle - this.angleArr[remainIndex]) < bound){
-                flagArr[index] = true
-                arrow.emit(boundEvent, ()=> {
-                    if(++index % flagArr.length === 0){
-                        flagArr = flagArr.map(_ => false)
-                    }
-                })
-            }
+            this.setCurrentIndex(remainAngle)
         })
         .eventCallback('onComplete', this.playResult)
     }
 
     /** 播放輪盤結果 */
     playResult = ()=>{
-        const wheel = this.wheelRef.current, arrow = this.arrowRef.current, button = this.buttonRef.current
+        const wheel = this.wheelRef.current, button = this.buttonRef.current
 
-        let remainIndex = 0, remainAngle = 0, flagArr = this.angleArr.map(_ => false), baseAngle = wheel.angle % 360, index = this.angleArr.findIndex(angle => angle >= baseAngle)
-        const item = this.getResult(), result = this.getResultAngle(item), config = {degree: 0}, bound = 10, target = result <= baseAngle? (result + 360): result
+        let remainIndex = 0, remainAngle = 0, baseAngle = wheel.angle % 360, index = this.angleArr.findIndex(angle => angle >= baseAngle)
+        const item = this.getResult(), result = this.getResultAngle(item), config = {degree: 0}, target = result <= baseAngle? (result + 360): result
 
         gsap.to(config, {ease: 'none', duration: target / 360 * wheelConfig.eachDuration, degree: target - baseAngle})
         .eventCallback('onUpdate', ()=>{
             wheel.angle = config.degree + baseAngle
             remainIndex = index % this.angleArr.length 
             remainAngle = wheel.angle % 360
-
-            if(!flagArr[remainIndex] && (remainAngle > this.angleArr[remainIndex]) && (remainAngle - this.angleArr[remainIndex]) < bound){
-                flagArr[index] = true
-                arrow.emit(boundEvent, ()=> {
-                    if(++index % flagArr.length === 0){
-                        flagArr = flagArr.map(_ => false)
-                    }
-                })
-            }
+            this.setCurrentIndex(remainAngle)
         })
         .eventCallback('onComplete', ()=>{
             button.interactive = true
@@ -103,6 +90,21 @@ export default class Game extends Component {
             itemObj.count = itemObj.count - 1
             this.setState({itemArr: [...itemArr]})      // 要吃pure array
         })
+    }
+
+    /**
+     * 設定目前指到的獎項 index
+     * @param {*} angle 角度 degree
+     */
+    setCurrentIndex = (angle)=>{
+        const {itemArr, currentIndex} = this.state
+        const totalCount = itemArr.reduce((pre, curr) => pre + curr.origCount, 0)
+        const clockwiseAngle = 360 - angle
+        const key = itemArr.findIndex((_, idx) => clockwiseAngle <= itemArr.slice(0, idx + 1).reduce((pre, curr) => pre + (curr.origCount / totalCount * 360), 0))
+
+        if(key !== currentIndex){
+            this.wheelRef.current.emit(boundEvent, key)     // 通知換邊界了
+        }
     }
 
     /** 取得結果 */
@@ -132,7 +134,9 @@ export default class Game extends Component {
     }
 
     render() {
-        const {itemArr} = this.state || {}
+        const {itemArr, currentIndex} = this.state || {}
+        const showIndex = this.state? (currentIndex + itemArr.length) % itemArr.length : 0
+
         return (
             <>
             {
@@ -152,6 +156,7 @@ export default class Game extends Component {
                         <Wheel ref={this.wheelRef} itemArr={itemArr} setAngle={this.setAngle}/>
                         <Arrow ref={this.arrowRef}/>
                     </Container>
+                    <GameText text={itemArr[showIndex].item}/>
                     <Button ref={this.buttonRef} x={360} y={800} width={200} height={100} text="開始!" clickEvent={this.clickEvent}/>
 
                     {
