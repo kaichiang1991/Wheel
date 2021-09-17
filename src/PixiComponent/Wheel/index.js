@@ -69,9 +69,12 @@ export default PixiComponent('Wheel', {
             .arc(0, 0, radius, deg2Rad(bottomAngle), deg2Rad(topAngle), false)
 
             // 上面的文字
-            const text = instance.addChild(new PIXI.Text(i + 1, textStyle))
-            const [textX, textY] = getCirclePos(radius * 0.6, (bottomAngle + topAngle) / 2)
+            const text = instance.addChild(new PIXI.Text(itemArr[i].item, textStyle))
+            const angle = (bottomAngle + topAngle) / 2
+            const [textX, textY] = getCirclePos(radius * 0.6, angle)
+            text.angle = angle
             text.position.set(textX, textY)
+            text.anchor.set(.5)
 
             currentDeg = topAngle
             angles.push(currentDeg)

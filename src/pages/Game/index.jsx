@@ -2,8 +2,10 @@ import { Stage, Container } from '@inlet/react-pixi'
 import React, { Component } from 'react'
 import Square from '../../PixiComponent/Square'
 import GameText from '../../PixiComponent/GameText'
+import ResultText from '../../PixiComponent/ResultText'
 import './index.css'
 import gsap from 'gsap'
+import PixiPlugin from 'gsap/PixiPlugin'
 import { nanoid } from 'nanoid'
 import Wheel from '../../PixiComponent/Wheel'
 import Arrow from '../../PixiComponent/Arrow'
@@ -14,6 +16,10 @@ const boundEvent = 'boundEvent'     // 碰到邊界的事件
 const wheelConfig = {
     eachDuration: 1
 }
+const gameResultDef = {
+    'origin': .7,
+    'effect': 1
+}
 
 export default class Game extends Component {
 
@@ -22,6 +28,9 @@ export default class Game extends Component {
         this.wheelRef = React.createRef()
         this.arrowRef = React.createRef()
         this.buttonRef = React.createRef()
+        this.gameResultRef = React.createRef()
+
+        gsap.registerPlugin(PixiPlugin)
     }
 
     componentDidMount(){
@@ -52,18 +61,17 @@ export default class Game extends Component {
 
     /** 點擊事件 */
     clickEvent = ()=>{
-        const wheel = this.wheelRef.current, arrow = this.arrowRef.current, button = this.buttonRef.current
+        const wheel = this.wheelRef.current, button = this.buttonRef.current
         button.interactive = false
 
-        const config = {degree: 0}, bound = 10, spinRound = 2
-        let remainIndex = 0, remainAngle = 0, baseAngle = wheel.angle % 360, index = this.angleArr.findIndex(angle => angle >= baseAngle)
+        const config = {degree: 0}, spinRound = 2
+        let remainAngle = 0, baseAngle = wheel.angle % 360
 
         gsap.timeline()
         .to(config, {ease: Power1.easeOut, degree: -10})
         .to(config, {ease: 'none', duration: wheelConfig.eachDuration * spinRound, degree: 360 * spinRound})
         .eventCallback('onUpdate', ()=>{
             wheel.angle = config.degree + baseAngle
-            remainIndex = index % this.angleArr.length 
             remainAngle = wheel.angle % 360
             this.setCurrentIndex(remainAngle)
         })
@@ -72,18 +80,35 @@ export default class Game extends Component {
 
     /** 播放輪盤結果 */
     playResult = ()=>{
-        const wheel = this.wheelRef.current, button = this.buttonRef.current
+        const wheel = this.wheelRef.current
 
-        let remainIndex = 0, remainAngle = 0, baseAngle = wheel.angle % 360, index = this.angleArr.findIndex(angle => angle >= baseAngle)
+        let remainAngle = 0, baseAngle = wheel.angle % 360
         const item = this.getResult(), result = this.getResultAngle(item), config = {degree: 0}, target = result <= baseAngle? (result + 360): result
 
         gsap.to(config, {ease: 'none', duration: target / 360 * wheelConfig.eachDuration, degree: target - baseAngle})
         .eventCallback('onUpdate', ()=>{
             wheel.angle = config.degree + baseAngle
-            remainIndex = index % this.angleArr.length 
             remainAngle = wheel.angle % 360
             this.setCurrentIndex(remainAngle)
         })
+        .eventCallback('onComplete', ()=>{
+            setTimeout(() => {
+                this.playGameResult(item)
+            }, 500)
+        })
+    }
+
+    /**
+     * 播放文字結果
+     * @param {*} item 獎項名稱
+     */
+    playGameResult = (item)=>{
+        const gameResult = this.gameResultRef.current, button = this.buttonRef.current
+        const {origin, effect} = gameResultDef
+
+        gsap.timeline().repeat(1)
+        .to(gameResult.scale, {ease: Power1.easeOut, duration: .2, x: effect, y: effect})
+        .to(gameResult.scale, {ease: 'none', duration: .8, x: origin, y: origin})
         .eventCallback('onComplete', ()=>{
             button.interactive = true
             const {itemArr} = this.state, itemObj = itemArr.find(obj => obj.item === item)
@@ -152,17 +177,17 @@ export default class Game extends Component {
                         </>
                     }
 
-                    <Container x={360} y={360}>
+                    <Container x={0} y={500}>
                         <Wheel ref={this.wheelRef} itemArr={itemArr} setAngle={this.setAngle}/>
                         <Arrow ref={this.arrowRef}/>
                     </Container>
-                    <GameText text={itemArr[showIndex].item}/>
-                    <Button ref={this.buttonRef} x={360} y={800} width={200} height={100} text="開始!" clickEvent={this.clickEvent}/>
+                    <ResultText ref={this.gameResultRef} text={itemArr[showIndex].item} x={380} y={500} anchor={[0, .5]} scale={gameResultDef['origin']} style={{fontSize: 72}}/>
+                    <Button ref={this.buttonRef} x={360} y={1100} width={200} height={100} text="開始!" clickEvent={this.clickEvent}/>
 
                     {
                         // 獎項資訊
                         itemArr.map((_item, index) => {
-                            const {item, count} = _item, text = `${index + 1}. ${item}: 剩下 ${count}個`
+                            const {item, count} = _item, text = `${item}: 剩下 ${count}個`
                             return <GameText key={nanoid()} x={720} y={700 + index * 50} anchor={[1, -0.2]} text={text} />
                         })
                     }
