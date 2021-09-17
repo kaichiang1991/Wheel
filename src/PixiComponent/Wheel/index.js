@@ -49,23 +49,23 @@ export default PixiComponent('Wheel', {
 
     applyProps: (instance, oldP, newP) =>{
 
-        const setAngle = newP.setAngle
-        const itemArr = Object.keys(newP)
-        itemArr.splice(itemArr.indexOf('setAngle'), 1)
+        const {setAngle, itemArr} = newP
 
         // 計算總共幾份
-        const totalCount = itemArr.reduce((pre, curr) => pre + (+(newP[curr].count)), 0)
+        const totalCount = itemArr.reduce((pre, curr) => pre + curr.origCount, 0)
         const itemCount = itemArr.length
+        instance.removeChildren()
         instance.clear().lineStyle(3, 0x000000)
         
         let currentDeg = 0, angles = []
         for(let i = 0; i < itemCount; i++){
 
-            const bottomAngle = currentDeg, topAngle = currentDeg + (360 / totalCount * Number(newP[i].count))
-            
+            const bottomAngle = currentDeg, topAngle = currentDeg + (360 / totalCount * itemArr[i].origCount)
+            const itemLeft = itemArr[i].count > 0           // 獎項是否還有剩
+
             instance
             .moveTo(0, 0)
-            .beginFill(colorArr[getColorIndex(i, itemCount)])
+            .beginFill(itemLeft? colorArr[getColorIndex(i, itemCount)]: 0x333333, itemLeft? 1: .3)
             .arc(0, 0, radius, deg2Rad(bottomAngle), deg2Rad(topAngle), false)
 
             // 上面的文字
