@@ -8,7 +8,7 @@ import { nanoid } from 'nanoid'
 import Wheel from '../../PixiComponent/Wheel'
 import Arrow from '../../PixiComponent/Arrow'
 import Button from '../../PixiComponent/Button'
-import { Power1, Power4, Bounce, Elastic } from 'gsap/all'
+import { Power1, Elastic } from 'gsap/all'
 
 const boundEvent = 'boundEvent'     // 碰到邊界的事件
 const wheelConfig = {
@@ -58,7 +58,7 @@ export default class Game extends Component {
             if(!flagArr[remainIndex] && (remainAngle > this.angleArr[remainIndex]) && (remainAngle - this.angleArr[remainIndex]) < bound){
                 flagArr[index] = true
                 arrow.emit(boundEvent, ()=> {
-                    if(++index % flagArr.length == 0){
+                    if(++index % flagArr.length === 0){
                         flagArr = flagArr.map(_ => false)
                     }
                 })
@@ -83,7 +83,7 @@ export default class Game extends Component {
             if(!flagArr[remainIndex] && (remainAngle > this.angleArr[remainIndex]) && (remainAngle - this.angleArr[remainIndex]) < bound){
                 flagArr[index] = true
                 arrow.emit(boundEvent, ()=> {
-                    if(++index % flagArr.length == 0){
+                    if(++index % flagArr.length === 0){
                         flagArr = flagArr.map(_ => false)
                     }
                 })
@@ -138,7 +138,7 @@ export default class Game extends Component {
                     itemArr.map((_item, index) => <GameText key={nanoid()} x={720} y={0 + index * 50} anchor={[1, -0.2]} text={`${_item.item}: 剩下 ${_item.count}個`} />)
                 }
 
-                <Container>
+                <Container x={360} y={360}>
                     <Wheel {...itemArr} ref={this.wheelRef} setAngle={this.setAngle}/>
                     <Arrow ref={this.arrowRef}/>
                 </Container>

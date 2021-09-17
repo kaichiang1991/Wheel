@@ -14,6 +14,6 @@ export default PixiComponent('Arrow', {
         .lineTo(0, -15)
         .endFill()
 
-        instance.position.set(615, 360)
+        instance.position.set(360, 0)
     }
 })

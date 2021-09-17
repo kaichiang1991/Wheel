@@ -1,5 +1,5 @@
 import { PixiComponent } from "@inlet/react-pixi";
-import { Container, Graphics, Point, Text, TextStyle } from "pixi.js";
+import { Graphics, Point, Text, TextStyle } from "pixi.js";
 
 export default PixiComponent('Button', {
     create(){
@@ -23,7 +23,7 @@ export default PixiComponent('Button', {
     },
 
     applyProps(instance, oldP, newP){
-        const {down, clickEvent, x, y, width, height, text} = newP
+        const {clickEvent, x, y, width, height, text} = newP
         instance
         .lineStyle(2, 0)
         .beginFill(0xf5f5f5)

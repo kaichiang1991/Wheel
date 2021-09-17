@@ -3,7 +3,7 @@ import './App.css'
 import * as PIXI from 'pixi.js'
 import gsap from 'gsap'
 import PixiPlugin from 'gsap/PixiPlugin'
-import { Route, Router, Switch } from 'react-router'
+import { Route, Switch } from 'react-router'
 import Home from './pages/Home'
 import Game from './pages/Game'
 
@@ -34,7 +34,6 @@ export default class App extends Component {
 	}
 
 	render() {
-		const {width, height} = this.state
 		return (
 			<div className="App">
     			<div className="game-container" ref={this.gameRef}>
