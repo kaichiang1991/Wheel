@@ -167,7 +167,7 @@ export default class Game extends Component {
             {
                 !this.state? null: 
                 <Stage width={720} height={1280} options={{
-                    autoDensity: false, transparent: true
+                    autoDensity: false, backgroundColor: 0xFFEBCD
                 }}>
                     {
                         // 定位用
@@ -177,17 +177,17 @@ export default class Game extends Component {
                         </>
                     }
 
-                    <Container x={0} y={500}>
+                    <Container x={0} y={400}>
                         <Wheel ref={this.wheelRef} itemArr={itemArr} setAngle={this.setAngle}/>
                         <Arrow ref={this.arrowRef}/>
                     </Container>
-                    <ResultText ref={this.gameResultRef} text={itemArr[showIndex].item} x={380} y={500} anchor={[0, .5]} scale={gameResultDef['origin']} style={{fontSize: 72}}/>
+                    <ResultText ref={this.gameResultRef} text={itemArr[showIndex].item} x={380} y={400} anchor={[0, .5]} scale={gameResultDef['origin']} style={{fontSize: 80}}/>
                     <Button ref={this.buttonRef} x={360} y={1100} width={200} height={100} text="開始!" clickEvent={this.clickEvent}/>
 
                     {
                         // 獎項資訊
                         itemArr.map((_item, index) => {
-                            const {item, count} = _item, text = `${item}: 剩下 ${count}個`
+                            const {item, count} = _item, text = `${item}: ${count}個`
                             return <GameText key={nanoid()} x={720} y={700 + index * 50} anchor={[1, -0.2]} text={text} />
                         })
                     }

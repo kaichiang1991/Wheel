@@ -13,7 +13,7 @@ const gameStyle = {
     dropShadowDistance: 1,
 
     fontFamily: '"Source Sans Pro", Helvetica, sans-serif',
-    fontSize: 40,
+    fontSize: 32,
 }
 
 const GameText = props => <Text {...props} style={{...gameStyle, ...props.style}}/>
