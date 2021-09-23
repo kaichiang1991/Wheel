@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import './App.css'
-import { Route, Switch } from 'react-router'
+import { Redirect, Route, Switch } from 'react-router'
 import Home from './pages/Home'
 import Game from './pages/Game'
 
@@ -22,6 +22,7 @@ export default class App extends Component {
 					<Switch>
 						<Route exact path="/" component={Home}/>
 						<Route path="/game" component={Game}/>
+						<Redirect to={'/'}/>
 					</Switch>
 				</div>
 			</div>
