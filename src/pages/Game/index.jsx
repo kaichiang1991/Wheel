@@ -1,6 +1,5 @@
 import { Stage, Container } from '@inlet/react-pixi'
 import React, { Component } from 'react'
-import Square from '../../PixiComponent/Square'
 import GameText from '../../PixiComponent/GameText'
 import ResultText from '../../PixiComponent/ResultText'
 import './index.css'
@@ -169,15 +168,7 @@ export default class Game extends Component {
                 <Stage width={720} height={1280} options={{
                     autoDensity: false, backgroundColor: 0xFFEBCD
                 }}>
-                    {
-                        // 定位用
-                        <>
-                        <Square width={100} pos={[0, 0]}/>
-                        <Square width={100} pos={[720-100, 1280-100]}/>
-                        </>
-                    }
-
-                    <Container x={0} y={400}>
+                      <Container x={0} y={400}>
                         <Wheel ref={this.wheelRef} itemArr={itemArr} setAngle={this.setAngle}/>
                         <Arrow ref={this.arrowRef}/>
                     </Container>
