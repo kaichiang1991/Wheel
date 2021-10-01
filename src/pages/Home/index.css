@@ -25,3 +25,7 @@ input[type="file"]{
     margin: 4px auto;
     display: block;
 }
+
+.wheel-title input{
+    margin: 4px;
+}

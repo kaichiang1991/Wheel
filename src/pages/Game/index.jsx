@@ -10,6 +10,7 @@ import Wheel from '../../PixiComponent/Wheel'
 import Arrow from '../../PixiComponent/Arrow'
 import Button from '../../PixiComponent/Button'
 import { Power1, Elastic } from 'gsap/all'
+import { requestServer } from '../../serverAccess'
 
 const boundEvent = 'boundEvent'     // 碰到邊界的事件
 const wheelConfig = {
@@ -33,10 +34,11 @@ export default class Game extends Component {
     }
 
     componentDidMount(){
-        const {itemArr} = this.props.location.state
+        const {title, itemArr} = this.props.location.state
 
         // 把 route 帶來的 props 送入 state
         this.setState({
+            title,
             itemArr: itemArr.map(item => ({...item, origCount: +item.count, count: +item.count})),
             currentIndex: 0
         }
@@ -83,6 +85,13 @@ export default class Game extends Component {
 
         let remainAngle = 0, baseAngle = wheel.angle % 360
         const item = this.getResult(), result = this.getResultAngle(item), config = {degree: 0}, target = result <= baseAngle? (result + 360): result
+
+        // request server
+        requestServer('/api/update', 'POST', {title: this.state.title, name: item})
+        setTimeout(() => {
+            requestServer('/api/get', 'POST', {title: this.state.title})
+        }, 300)
+        
 
         gsap.to(config, {ease: 'none', duration: target / 360 * wheelConfig.eachDuration, degree: target - baseAngle})
         .eventCallback('onUpdate', ()=>{

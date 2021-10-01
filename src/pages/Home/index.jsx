@@ -1,9 +1,9 @@
 import { nanoid } from 'nanoid'
 import React, { Component } from 'react'
-import { Link } from 'react-router-dom'
 import List from '../List'
 import XLSX from 'xlsx'
 import './index.css'
+import {requestServer} from '../../serverAccess'
 
 export default class Home extends Component {
 
@@ -13,6 +13,7 @@ export default class Home extends Component {
 
     constructor(){
         super()
+        this.titleRef = React.createRef()
         this.itemRef = React.createRef()
         this.countRef = React.createRef()
 
@@ -79,11 +80,49 @@ export default class Home extends Component {
         }
     }
 
+    /** 進入遊戲 */
+    startGame = async () => {
+        const {value: title} = this.titleRef.current
+        if(!title){
+            alert('沒有設定抽獎名稱')
+            return
+        }
+        
+        const apiList = await requestServer('/api')
+        console.log('apiList', apiList)
+        const postObj = {
+            title, itemArr: this.state.itemArr
+        }
+        const get = await requestServer('/api/set', 'POST', postObj)
+
+        this.setState({title}, ()=>{
+            console.log('state', this.state)
+            const history = this.props.history
+            history.push({pathname: '/game', state: this.state})
+        })
+    }
+
+    loadDB = async ()=>{
+        const {value: title} = this.titleRef.current
+        if(!title)
+            return
+
+        const result = await requestServer('/api/get', 'POST', {title: title})
+        this.setState({itemArr: result.map(item => ({...item, item: item.name, id: nanoid()}))})
+        console.log('result', result)
+    }
+
     render() {
         const {itemArr} = this.state
         return (
             <div className="home">
                 <h1>設定轉盤</h1>
+
+                <div className="wheel-title">
+                    <h3>抽獎名稱</h3>
+                    <input ref={this.titleRef} type="text" />
+                    <input type="button" value="讀取" onClick={this.loadDB}/>
+                </div>
                 <span>
                     <p>品項</p>
                     <input type="text" placeholder="品項名稱" ref={this.itemRef}/>
@@ -92,7 +131,7 @@ export default class Home extends Component {
                 </span>
                 <input type="file" onChange={this.uploadFile} accept={'.xls, .xlsx'} placeholder={'選擇excel'}/>
                 <List itemArr={itemArr} deleteFn={this.deleteItem}/>
-                <Link className="start-btn" to={{pathname: '/game', state: this.state}}>開始抽獎</Link>
+                <input className="start-btn" type="button" value="開始抽獎" onClick={this.startGame}/>
             </div>
         )
     }
